@@ -17,6 +17,17 @@ def get_doctor(doctor_id):
         return jsonify({'data': None, 'error': 'Doctor not found', 'status': 404}), 404
     return jsonify({'data': doctor.to_dict(), 'error': None, 'status': 200})
 
+@doctors_bp.route('/doctors/<int:doctor_id>', methods=['DELETE'])
+def delete_doctor(doctor_id):
+    doctor = Doctor.query.get(doctor_id)
+    if not doctor:
+        return jsonify({'data': None, 'error': 'Doctor not found', 'status': 404}), 404
+    if Appointment.query.filter_by(doctor_id=doctor_id).first() is not None:
+        return jsonify({'data': None, 'error': 'Doctor has appointments and cannot be deleted', 'status': 409}), 409
+    db.session.delete(doctor)
+    db.session.commit()
+    return jsonify({'data': {'id': doctor_id, 'deleted': True}, 'error': None, 'status': 200})
+
 @doctors_bp.route('/doctors/<int:doctor_id>/slots', methods=['GET'])
 def get_doctor_slots(doctor_id):
     doctor = Doctor.query.get(doctor_id)
