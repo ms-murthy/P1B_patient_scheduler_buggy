@@ -23,7 +23,7 @@ def check_overlap(doctor_id, start_time, end_time, exclude_id=None):
         Appointment.doctor_id == doctor_id,
         Appointment.status == 'scheduled',
         Appointment.start_time < end_time,
-        Appointment.end_time >= start_time,
+        Appointment.end_time > start_time,
     )
     if exclude_id:
         query = query.filter(Appointment.id != exclude_id)
