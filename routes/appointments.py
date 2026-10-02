@@ -73,10 +73,7 @@ def reschedule_appointment(appt_id):
         new_end = datetime.fromisoformat(data['end_time'])
     except (ValueError, KeyError):
         return jsonify({'data': None, 'error': 'Invalid or missing datetime fields', 'status': 400}), 400
-    # BUG 1: condition inverted — conflict check result is negated
-    # Should be: if check_overlap(...): return 409
-    # Bug: if NOT check_overlap(...): return 409  ← always blocks valid reschedules
-    if not check_overlap(appt.doctor_id, new_start, new_end, exclude_id=appt_id):
+    if check_overlap(appt.doctor_id, new_start, new_end, exclude_id=appt_id):
         return jsonify({'data': None, 'error': 'New time slot conflicts with existing appointment', 'status': 409}), 409
     appt.start_time = new_start
     appt.end_time = new_end
