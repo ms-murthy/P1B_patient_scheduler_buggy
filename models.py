@@ -31,6 +31,7 @@ class Appointment(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     reason = db.Column(db.String(200))
     status = db.Column(db.String(20), default='scheduled')
+    due_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -41,5 +42,6 @@ class Appointment(db.Model):
             'start_time': self.start_time.isoformat(),
             'end_time': self.end_time.isoformat(),
             'reason': self.reason,
-            'status': self.status
+            'status': self.status,
+            'due_date': self.due_date.isoformat() if self.due_date else None
         }

@@ -47,6 +47,12 @@ def create_appointment():
         return jsonify({'data': None, 'error': 'Invalid datetime format. Use ISO 8601.', 'status': 400}), 400
     if end <= start:
         return jsonify({'data': None, 'error': 'end_time must be after start_time', 'status': 400}), 400
+    due_date = None
+    if data.get('due_date') is not None:
+        try:
+            due_date = datetime.fromisoformat(data['due_date'])
+        except (ValueError, TypeError):
+            return jsonify({'data': None, 'error': 'Invalid due_date format. Use ISO 8601.', 'status': 400}), 400
     if check_overlap(data['doctor_id'], start, end):
         return jsonify({'data': None, 'error': 'Time slot conflicts with existing appointment', 'status': 409}), 409
     appt = Appointment(
@@ -55,7 +61,8 @@ def create_appointment():
         start_time=start,
         end_time=end,
         reason=data.get('reason', ''),
-        status='scheduled'
+        status='scheduled',
+        due_date=due_date
     )
     db.session.add(appt)
     db.session.commit()

@@ -6,3 +6,6 @@ db/appointments.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Claude Code worktrees
+.claude/worktrees/
