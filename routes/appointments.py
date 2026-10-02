@@ -3,6 +3,7 @@ from app import db
 from models import Appointment, Doctor, Patient
 from utils.conflict import check_overlap
 from datetime import datetime
+from sqlalchemy.orm import joinedload
 
 appointments_bp = Blueprint('appointments', __name__)
 
@@ -15,13 +16,11 @@ def get_appointments():
         query = query.filter_by(patient_id=patient_id)
     if doctor_id:
         query = query.filter_by(doctor_id=doctor_id)
-    appointments = query.all()
-    # BUG 4: N+1 query — fetching doctor name triggers a separate query per appointment
+    appointments = query.options(joinedload(Appointment.doctor)).all()
     result = []
     for a in appointments:
         data = a.to_dict()
-        doc = Doctor.query.filter_by(id=a.doctor_id).first()  # unnecessary — already lazy-loaded
-        data['doctor_name'] = doc.name if doc else None
+        data['doctor_name'] = a.doctor.name if a.doctor else None
         result.append(data)
     return jsonify({'data': result, 'error': None, 'status': 200})
 
